@@ -33,4 +33,17 @@ class NeuralNetwork {
     Layer inputs;
     vector<Layer> hidden;
     Layer outputs;
+
+    void computeOutputs();
 }
+
+class Trainer {
+  public:
+    NeuralNetwork* network;
+
+    void compare(std::vector<float> expected);
+    void train(std::vector<float> inputs, std::vector<float> outputs);
+
+}
+
+
