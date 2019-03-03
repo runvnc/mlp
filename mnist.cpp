@@ -49,3 +49,18 @@ void MNISTImages::loadFile(string name) {
   file.close();
 }
 
+void MNISTImages::printImage(int index) {
+  char* pixels = images[index];
+  for (int row = 0; row < rows; row++) {
+    for (int col = 0; col < cols; col++) {
+      char darkness = pixels[row*cols+col];
+      if (darkness > 0) {
+        printf("█");
+      } else {
+        printf(" ");
+      }
+    }
+    printf("\n");
+  }
+}
+

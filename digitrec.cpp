@@ -14,5 +14,7 @@ int main(int argc, const char* argv[]) {
 
   printf("Loaded %d testing images.\n", testingImages->numImages);
 
+  for (int i=0; i < 5; i++)
+    testingImages->printImage(i);
 
 }

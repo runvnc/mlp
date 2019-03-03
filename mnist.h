@@ -29,5 +29,6 @@ class MNISTImages {
     vector<char *> images;
 
     void loadFile(string name);
+    void printImage(int index);
 };
 
