@@ -53,14 +53,16 @@ void MNISTImages::printImage(int index) {
   char* pixels = images[index];
   for (int row = 0; row < rows; row++) {
     for (int col = 0; col < cols; col++) {
-      char darkness = pixels[row*cols+col];
-      if (darkness > 0) {
-        printf("█");
-      } else {
-        printf(" ");
-      }
+      uint8_t darkness = pixels[row*cols+col];
+      float levels = 255 - 232;
+      float grey = darkness;
+      float greyLevel = (darkness/255.0) * levels;
+      int color = 255 - greyLevel;
+      textColor(color);
+      printf("█");
     }
     printf("\n");
   }
+  textColor(7);
 }
 
