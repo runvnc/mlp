@@ -2,18 +2,20 @@
 
 using namespace std;
 
-class NueralInput {
+class Neuron;
+
+class NeuralInput {
   public:
     Neuron* fromNeuron;
     Neuron* toNeuron;
-    float weight;
+    float weight = 0;
 
     NeuralInput(Neuron* from_, Neuron* to_, float weight_) {
-      from = from_;
-      to = to_;
+      fromNeuron = from_;
+      toNeuron = to_;
       weight = weight_;
     }  
-}
+};
 
 class Neuron {
   public:
@@ -21,43 +23,47 @@ class Neuron {
     int layer;
     int index;
 
-    float bias;
+    float bias = 0;
 
     vector<NeuralInput*> inputs; 
 
     float outputActivation;
     
     void calculateActivation();
-}
+};
 
 class Layer {
-  vector<Neuron*> neurons;
-  void activateAll();
-  connectTo(Layer*);
-}
+  public:
+    vector<Neuron*> neurons;
+    Layer(int);
+    void activateAll();
+    void connectTo(Layer*);
+};
 
 class NeuralNetwork {
   public:
-    Layer* inputs;
+    Layer* inputs = NULL;
     vector<Layer*> hidden;
-    Layer* outputs;
+    Layer* outputs = NULL;
 
     void connectLayers();
-    randomizeHidden();
+    void randomizeHidden();
     void computeOutputs();
-}
+};
 
 class MNISTNetwork: public NeuralNetwork {
 
-}
+};
+
+
 
 class Trainer {
   public:
     NeuralNetwork* network;
-
+    
     void compare(std::vector<float> expected);
     void train(std::vector<float> inputs, std::vector<float> outputs);
 
-}
+};
 
 

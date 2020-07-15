@@ -1,7 +1,8 @@
 #include "mnist.h"
 #include <stdio.h>
+#include "ANDnet.h"
 
-int main(int argc, const char* argv[]) {
+void setupMNIST() {
   int32_t TESTING_LABEL_MAGIC_NUM = 2049;
   auto testingLabels = new MNISTLabels(TESTING_LABEL_MAGIC_NUM);
   testingLabels->loadFile("digitsdata/t10k-labels-idx1-ubyte");
@@ -18,4 +19,9 @@ int main(int argc, const char* argv[]) {
     testingImages->printImage(i);
     printf("%d\n",testingLabels->labels[i]);
   }
+}
+
+int main(int argc, const char* argv[]) {
+  auto net = new ANDNetwork();
+  net->computeOutputs();
 }
