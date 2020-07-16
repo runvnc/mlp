@@ -24,4 +24,23 @@ void setupMNIST() {
 int main(int argc, const char* argv[]) {
   auto net = new ANDNetwork();
   net->computeOutputs();
+  net->print();
+  auto trainer = new Trainer(net);
+  
+  trainer.compare(exp);
 }
+
+/*
+Standard knowledge encoding format
+32x32 bytes = grid
+as a type of language
+high-level shapes described
+as 32 x 32 
+ways to compose multiple 32x32 grids
+to describe larger or more complex shapes
+mapping to images or visual fields
+apply grids to eachother as mapping
+standard ways to go from images to grid arrays
+blowing up or expanding grids
+
+*/

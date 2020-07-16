@@ -34,10 +34,13 @@ class Neuron {
 
 class Layer {
   public:
+    int ind = 0;
     vector<Neuron*> neurons;
-    Layer(int);
+    Layer(int, int);
+
     void activateAll();
     void connectTo(Layer*);
+    void print();
 };
 
 class NeuralNetwork {
@@ -49,6 +52,7 @@ class NeuralNetwork {
     void connectLayers();
     void randomizeHidden();
     void computeOutputs();
+    void print();
 };
 
 class MNISTNetwork: public NeuralNetwork {
@@ -60,7 +64,7 @@ class MNISTNetwork: public NeuralNetwork {
 class Trainer {
   public:
     NeuralNetwork* network;
-    
+    Trainer(NeuralNetwork*);
     void compare(std::vector<float> expected);
     void train(std::vector<float> inputs, std::vector<float> outputs);
 

@@ -12,10 +12,11 @@ void Neuron::calculateActivation() {
  
   sum += bias;
   outputActivation = 1.0 / (1.0 + exp(sum*-1));  
-  cout << index << " " << outputActivation << "\n";
+  
 }
 
-Layer::Layer(int count) {
+Layer::Layer(int index, int count) {
+  ind = index;
   for (int i=0; i<count; i++) {
     auto n = new Neuron();
     n->index = i;
@@ -36,6 +37,14 @@ void Layer::connectTo(Layer* toLayer) {
   }
 }
 
+void Layer::print() {
+  for (size_t i=0; i < neurons.size(); i++) {
+    Neuron* n = neurons[i];
+    cout << ind << " " << i << " " << n->outputActivation << "\n";
+  }
+}
+
+
 void NeuralNetwork::connectLayers() {
   cout << " Connecting\n";
   assert(inputs);
@@ -53,9 +62,30 @@ void NeuralNetwork::computeOutputs() {
   outputs->activateAll();
 }
 
+void NeuralNetwork::print() {
+  inputs->print();
+  for (auto& layer: hidden)
+    layer->print();
+  outputs->print();
+}
+
 void Layer::activateAll() {
   for (auto& neuron: neurons) {
     neuron->calculateActivation();
   }
 }
+
+Trainer::Trainer(NeuralNetwork* net) {
+  network = net;
+}
+
+void Trainer::compare(std::vector<float> expected) {
+  Layer* result = network->outputs;
+  int i = 0;
+  for (auto& neuron:result->neurons) {
+    float diff = expected[i++] - neuron->outputActivation;
+    cout << diff << "\n";
+  }
+}
+
 
