@@ -26,8 +26,10 @@ int main(int argc, const char* argv[]) {
   net->computeOutputs();
   net->print();
   auto trainer = new Trainer(net);
-  
-  trainer.compare(exp);
+  vector<float> exp;
+  exp.push_back(0);
+  exp.push_back(1);
+  trainer->compare(exp);
 }
 
 /*

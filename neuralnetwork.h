@@ -49,6 +49,7 @@ class NeuralNetwork {
     vector<Layer*> hidden;
     Layer* outputs = NULL;
 
+    void assignInput(size_t,float);
     void connectLayers();
     void randomizeHidden();
     void computeOutputs();
@@ -59,15 +60,14 @@ class MNISTNetwork: public NeuralNetwork {
 
 };
 
-
-
 class Trainer {
   public:
-    NeuralNetwork* network;
+    NeuralNetwork* network = 0;
+    float learningRate = 0;
     Trainer(NeuralNetwork*);
     void compare(std::vector<float> expected);
-    void train(std::vector<float> inputs, std::vector<float> outputs);
-
-};
+    void meanSquaredError(std::vector<float> expected)
+    void calcGradients(NeuralNetwork* net, std::vector<float> expected) 
+}
 
 

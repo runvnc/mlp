@@ -44,6 +44,11 @@ void Layer::print() {
   }
 }
 
+void NeuralNetwork::assignInput(size_t n, float x) {
+  if (inputs->neurons.size()<=n) inputs->neurons.resize(n+1);
+  inputs->neurons[n]->outputActivation = x;
+}
+
 
 void NeuralNetwork::connectLayers() {
   cout << " Connecting\n";
@@ -75,8 +80,9 @@ void Layer::activateAll() {
   }
 }
 
-Trainer::Trainer(NeuralNetwork* net) {
+Trainer::Trainer(NeuralNetwork* net, float rate) {
   network = net;
+  learningRate = rate;
 }
 
 void Trainer::compare(std::vector<float> expected) {
@@ -87,5 +93,61 @@ void Trainer::compare(std::vector<float> expected) {
     cout << diff << "\n";
   }
 }
+
+void Trainer::MeanSquaredError(std::vector<float> expected) {
+
+}
+
+void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
+  // for each output, starting at last layer, working backward
+  std::vector<Layer*> layers = { net->hidden, net->output };
+  for (int n=1; n--; n>=0) {
+    Layer* layer = layers[n];
+    for (auto& neuron:layer->neurons) {
+      float output,slopeErrorVaryOutput,slopeErrorVaryInput,slopeErrorVaryWeight,
+      slopeErrorVaryPriorOutput, dn = 0;
+      output = neuron->outputActivation;
+      if (n == layers.size()-1) {
+        slopeErrorVaryOutput = output - desired[dn++]; 
+        slopeErrorVaryInput = slopeErrorVaryOutput  * output * (1 - output);
+
+      } else {
+          
+          slopeErrorVaryOutput = sumToJ(slopeErrorVaryNextInput*weight);
+      }
+      
+      float slopeErrorVaryInput = 
+      float slopeErrorVaryWeight = slopeErrorVaryInput * priorOutput;
+      float slopeErrorVaryPriorOutput = 
+
+      // save all slopeErrorVaryWeight
+      // add them up
+      float weightAdjust = -1 * learningRate * sumSlopeErrorVaryWeight;
+      input->weight += weightAdjust;
+    } 
+  }
+}
+
+/*
+compute the total error/cost
+which is going to be the sum of the output errors
+MSE
+
+then adjustweights
+starting with the output layer
+then the hidden layer
+
+to adjust weights, we want to find out how to
+change w for each neuron to reduce the MSE
+so we need to take the derivative of the function
+that gets us that output
+so at each neuron, for each weight and each bias, calculate
+the derivative of the cost function at that point in the graph
+working backwards from the output neuron
+so construct the cost function for that weight by composing functions
+
+
+
+*/
 
 
