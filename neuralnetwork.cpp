@@ -94,12 +94,37 @@ void Trainer::compare(std::vector<float> expected) {
   }
 }
 
-void Trainer::MeanSquaredError(std::vector<float> expected) {
+void Trainer::meanSquaredError(std::vector<float> expected) {
 
 }
 
 void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
   // for each output, starting at last layer, working backward
+  float dEdY[1000], dEdX[1000];
+  int j = 0;
+  std::vector<float>& d = desired;
+  for (auto& neuron:net->outputs->neurons) {
+    float Yj = neuron->outputActivation;
+    dEdY[j] = Yj - d[j];
+    dEdX[j] = dEdY[j] * Yj * (1 - Yj);
+    for (auto& input:neuron->inputs) {
+      float Yi = input->fromNeuron->outputActivation;
+      dEdWij = dEdX[j] * Yi;
+    }
+    j++;
+  }
+
+  for (hidden neurons) {
+    float sum = 0;
+    for (float n=0; n < 2; n++) {
+      Wji = outNeuron[n]->
+      sum += dEdX[n] * Wji;
+    dEdY[i] = 
+    }
+  }
+
+  cout << dEdY[j-1];
+/*
   std::vector<Layer*> layers = { net->hidden, net->output };
   for (int n=1; n--; n>=0) {
     int i = 0;
@@ -126,7 +151,7 @@ void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
       input->weight += weightAdjust;
       i++;
     } 
-  }
+  } */
 }
 
 /*

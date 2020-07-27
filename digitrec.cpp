@@ -25,7 +25,7 @@ int main(int argc, const char* argv[]) {
   auto net = new ANDNetwork();
   net->computeOutputs();
   net->print();
-  auto trainer = new Trainer(net);
+  auto trainer = new Trainer(net, 0.5);
   vector<float> exp;
   exp.push_back(0);
   exp.push_back(1);

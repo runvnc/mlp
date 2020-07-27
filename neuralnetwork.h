@@ -64,10 +64,10 @@ class Trainer {
   public:
     NeuralNetwork* network = 0;
     float learningRate = 0;
-    Trainer(NeuralNetwork*);
+    Trainer(NeuralNetwork*, float rate);
     void compare(std::vector<float> expected);
-    void meanSquaredError(std::vector<float> expected)
-    void calcGradients(NeuralNetwork* net, std::vector<float> expected) 
-}
+    void meanSquaredError(std::vector<float> expected);
+    void calcGradients(NeuralNetwork* net, std::vector<float> expected);
+};
 
 
