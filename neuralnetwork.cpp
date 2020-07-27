@@ -102,28 +102,29 @@ void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
   // for each output, starting at last layer, working backward
   std::vector<Layer*> layers = { net->hidden, net->output };
   for (int n=1; n--; n>=0) {
+    int i = 0;
     Layer* layer = layers[n];
     for (auto& neuron:layer->neurons) {
       float output,slopeErrorVaryOutput,slopeErrorVaryInput,slopeErrorVaryWeight,
       slopeErrorVaryPriorOutput, dn = 0;
-      output = neuron->outputActivation;
-      if (n == layers.size()-1) {
-        slopeErrorVaryOutput = output - desired[dn++]; 
-        slopeErrorVaryInput = slopeErrorVaryOutput  * output * (1 - output);
+      Yj = neuron->outputActivation;
+      if (on last layer) dEdYj = Yj - dj;
+      else dEdYi = sumToJ(dEdXj*Wji);
 
-      } else {
-          
-          slopeErrorVaryOutput = sumToJ(slopeErrorVaryNextInput*weight);
-      }
+      dEdXj= dEdYj  * Yj * (1 - Yj);
       
-      float slopeErrorVaryInput = 
-      float slopeErrorVaryWeight = slopeErrorVaryInput * priorOutput;
+      Layer* forwardLayer = layers[n+1];
+      Neuron* forwardNeuron = forwardLayer->neurons[i];
+      dEdYi = sumToJ(dEdXj*Wji)
+      dEdWji = dEdXj*Yj;
+
       float slopeErrorVaryPriorOutput = 
 
       // save all slopeErrorVaryWeight
       // add them up
-      float weightAdjust = -1 * learningRate * sumSlopeErrorVaryWeight;
+      float weightAdjust = -1 * learningRate * accum_dEdW;
       input->weight += weightAdjust;
+      i++;
     } 
   }
 }
