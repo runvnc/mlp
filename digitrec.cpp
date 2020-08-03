@@ -1,6 +1,7 @@
 #include "mnist.h"
 #include <stdio.h>
 #include "ANDnet.h"
+#include <iostream>
 
 void setupMNIST() {
   int32_t TESTING_LABEL_MAGIC_NUM = 2049;
@@ -24,12 +25,21 @@ void setupMNIST() {
 int main(int argc, const char* argv[]) {
   auto net = new ANDNetwork();
   net->computeOutputs();
+  cout << "Network:\n";
   net->print();
-  auto trainer = new Trainer(net, 0.5);
+  auto trainer = new Trainer(net, 0.11);
   vector<float> exp;
   exp.push_back(0);
   exp.push_back(1);
+  for (int i=0; i< 71500; i++) {
+    trainer->calcGradients(exp);
+    net->computeOutputs();
+  }
+  cout << "Difference from expected:\n";
   trainer->compare(exp);
+  
+  cout << "Network:\n";
+  net->print();
 }
 
 /*

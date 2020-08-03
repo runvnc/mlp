@@ -2,6 +2,7 @@
 #include "neuralnetwork.h"
 #include <iostream>
 #include <assert.h>
+#include <cmath>
 
 void Neuron::calculateActivation() {
   float sum = 0;
@@ -11,9 +12,16 @@ void Neuron::calculateActivation() {
   }
  
   sum += bias;
-  outputActivation = 1.0 / (1.0 + exp(sum*-1));  
-  
+  outputActivation = 1.0 / (1.0 + exp(sum*-1));    
 }
+
+NeuralInput* Neuron::findInputFrom(Neuron* n) {
+  for (auto& input:inputs) {
+    if (input->fromNeuron == n) return input;
+  }
+  throw runtime_error("Can't match neural input.");
+}
+
 
 Layer::Layer(int index, int count) {
   ind = index;
@@ -53,24 +61,22 @@ void NeuralNetwork::assignInput(size_t n, float x) {
 void NeuralNetwork::connectLayers() {
   cout << " Connecting\n";
   assert(inputs);
-  assert(hidden.size()>0);
-  assert(hidden[0]);
   assert(outputs);
-  inputs->connectTo(hidden[0]); 
-  hidden[0]->connectTo(outputs);
+  inputs->connectTo(hidden); 
+  hidden->connectTo(outputs);
 }
 
 void NeuralNetwork::computeOutputs() {
-  for (auto& layer: hidden) {
-    layer->activateAll();
-  }
+  hidden->activateAll();
   outputs->activateAll();
 }
 
 void NeuralNetwork::print() {
+  cout << "Inputs:\n";
   inputs->print();
-  for (auto& layer: hidden)
-    layer->print();
+  cout << "Hidden:\n";
+  hidden->print();
+  cout << "Outputs:\n";
   outputs->print();
 }
 
@@ -94,11 +100,18 @@ void Trainer::compare(std::vector<float> expected) {
   }
 }
 
-void Trainer::meanSquaredError(std::vector<float> expected) {
-
+float Trainer::meanSquaredError(std::vector<float> expected) {
+  float sum = 0;
+  for (size_t i=0; i<expected.size(); i++) {
+    float diff = expected[i] - network->outputs->neurons[i]->outputActivation;
+    sum += pow(diff,2);
+  }
+  return sum/expected.size();
 }
 
-void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
+
+void Trainer::calcGradients(std::vector<float> desired) {
+  NeuralNetwork* net = network;
   // for each output, starting at last layer, working backward
   float dEdY[1000], dEdX[1000];
   int j = 0;
@@ -109,50 +122,58 @@ void Trainer::calcGradients(NeuralNetwork* net, std::vector<float> desired) {
     dEdX[j] = dEdY[j] * Yj * (1 - Yj);
     for (auto& input:neuron->inputs) {
       float Yi = input->fromNeuron->outputActivation;
-      dEdWij = dEdX[j] * Yi;
+      float dEdWij = dEdX[j] * Yi;
+      float weightAdjust = -1 * learningRate * dEdWij;
+      input->weight += weightAdjust;
     }
     j++;
   }
-
-  for (hidden neurons) {
+  int i = 0;
+  
+  for (auto& neuron:net->hidden->neurons) {
     float sum = 0;
-    for (float n=0; n < 2; n++) {
-      Wji = outNeuron[n]->
-      sum += dEdX[n] * Wji;
-    dEdY[i] = 
+    j = 0;
+    int jj = 0;
+    for (auto& out:net->outputs->neurons) {
+      NeuralInput* matchInput = out->findInputFrom(neuron);
+      float Wji = matchInput->weight;
+      sum += dEdX[jj] * Wji;
+      jj++;
     }
+
+    dEdY[j] = sum;
+    float Yj = neuron->outputActivation;
+    dEdX[j] = dEdY[j] * Yj * (1 - Yj);
+    for (auto& input:neuron->inputs) {
+      float Yi = input->fromNeuron->outputActivation;
+      float dEdWij = dEdX[j] * Yi;
+      float weightAdjust = -1 * learningRate * dEdWij;
+      input->weight += weightAdjust;
+    }
+    i++;
   }
 
-  cout << dEdY[j-1];
-/*
-  std::vector<Layer*> layers = { net->hidden, net->output };
-  for (int n=1; n--; n>=0) {
-    int i = 0;
-    Layer* layer = layers[n];
-    for (auto& neuron:layer->neurons) {
-      float output,slopeErrorVaryOutput,slopeErrorVaryInput,slopeErrorVaryWeight,
-      slopeErrorVaryPriorOutput, dn = 0;
-      Yj = neuron->outputActivation;
-      if (on last layer) dEdYj = Yj - dj;
-      else dEdYi = sumToJ(dEdXj*Wji);
-
-      dEdXj= dEdYj  * Yj * (1 - Yj);
-      
-      Layer* forwardLayer = layers[n+1];
-      Neuron* forwardNeuron = forwardLayer->neurons[i];
-      dEdYi = sumToJ(dEdXj*Wji)
-      dEdWji = dEdXj*Yj;
-
-      float slopeErrorVaryPriorOutput = 
-
-      // save all slopeErrorVaryWeight
-      // add them up
-      float weightAdjust = -1 * learningRate * accum_dEdW;
-      input->weight += weightAdjust;
-      i++;
-    } 
-  } */
 }
+
+/*
+inside of/ outside of
+relation between two objects
+describes categories of scenarios
+inside if will be obscured/hidden if perspective changes
+or will need to move in a certain way to get out
+its an abstract description of geometry
+so there needs to be some kind of partial or complete enclosure
+but this can include cups or bowls that are not entirely enclosed
+
+
+need to be able to quickly retrieve episodes by tagged concept
+need high performance (parallel?) transformations involving many
+inputs and outputs
+and a way to automatically create those composed functions
+to arrive at outputs that match inputs (modeling)
+
+would be nice if that could be plugged in to a different robot
+*/
 
 /*
 compute the total error/cost

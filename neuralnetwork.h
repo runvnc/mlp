@@ -28,6 +28,7 @@ class Neuron {
     vector<NeuralInput*> inputs; 
 
     float outputActivation;
+    NeuralInput* findInputFrom(Neuron*);
     
     void calculateActivation();
 };
@@ -46,7 +47,7 @@ class Layer {
 class NeuralNetwork {
   public:
     Layer* inputs = NULL;
-    vector<Layer*> hidden;
+    Layer* hidden;
     Layer* outputs = NULL;
 
     void assignInput(size_t,float);
@@ -66,8 +67,8 @@ class Trainer {
     float learningRate = 0;
     Trainer(NeuralNetwork*, float rate);
     void compare(std::vector<float> expected);
-    void meanSquaredError(std::vector<float> expected);
-    void calcGradients(NeuralNetwork* net, std::vector<float> expected);
+    float meanSquaredError(std::vector<float> expected);
+    void calcGradients(std::vector<float> expected);
 };
 
 
