@@ -110,12 +110,8 @@ float Trainer::meanSquaredError(std::vector<float> expected) {
 }
 
 
-void Trainer::calcGradients(std::vector<float> desired) {
+void Trainer::calcGradients(vector<vector<float> inps, vector<vector<float>> desired_) {
   NeuralNetwork* net = network;
-  // for each output, starting at last layer, working backward
-  float dEdY[1000], dEdX[1000];
-  int j = 0;
-
   // first reset all the weight derivative accumulators
   for (auto& neuron:net->outputs->neurons) {
     for (auto& input:neuron->inputs) {
@@ -128,61 +124,59 @@ void Trainer::calcGradients(std::vector<float> desired) {
     }
   }
 
-  //ss
+  for (auto& desired:desired_) {
+    float dEdY[1000], dEdX[1000];
+    int j = 0;
 
-  std::vector<float>& d = desired;
+    std::vector<float>& d = desired;
+    for (auto& neuron:net->outputs->neurons) {
+      float Yj = neuron->outputActivation;
+      dEdY[j] = Yj - d[j];
+      dEdX[j] = dEdY[j] * Yj * (1 - Yj);
+      for (auto& input:neuron->inputs) {
+        float Yi = input->fromNeuron->outputActivation;
+        float dEdWij = dEdX[j] * Yi;
+        input->deriv += dEdWij;
+      }
+      j++;
+    }
+    int i = 0;
+    
+    for (auto& neuron:net->hidden->neurons) {
+      float sum = 0;
+      j = 0;
+      int jj = 0;
+      for (auto& out:net->outputs->neurons) {
+        NeuralInput* matchInput = out->findInputFrom(neuron);
+        float Wji = matchInput->weight;
+        sum += dEdX[jj] * Wji;
+        jj++;
+      }
+
+      dEdY[j] = sum;
+      float Yj = neuron->outputActivation;
+      dEdX[j] = dEdY[j] * Yj * (1 - Yj);
+      for (auto& input:neuron->inputs) {
+        float Yi = input->fromNeuron->outputActivation;
+        float dEdWij = dEdX[j] * Yi;
+        input->deriv += dEdWij;
+      }
+      i++;
+    }
+  }
+
   for (auto& neuron:net->outputs->neurons) {
-    float Yj = neuron->outputActivation;
-    dEdY[j] = Yj - d[j];
-    dEdX[j] = dEdY[j] * Yj * (1 - Yj);
     for (auto& input:neuron->inputs) {
-      float Yi = input->fromNeuron->outputActivation;
-      float dEdWij = dEdX[j] * Yi;
-      input->deriv += dEdWij;
-    }
-    j++;
-  }
-  int i = 0;
-  
-  for (auto& neuron:net->hidden->neurons) {
-    float sum = 0;
-    j = 0;
-    int jj = 0;
-    for (auto& out:net->outputs->neurons) {
-      NeuralInput* matchInput = out->findInputFrom(neuron);
-      float Wji = matchInput->weight;
-      sum += dEdX[jj] * Wji;
-      jj++;
-    }
-
-    dEdY[j] = sum;
-    float Yj = neuron->outputActivation;
-    dEdX[j] = dEdY[j] * Yj * (1 - Yj);
-    for (auto& input:neuron->inputs) {
-      float Yi = input->fromNeuron->outputActivation;
-      float dEdWij = dEdX[j] * Yi;
-      input->deriv += dEdWij;
-    }
-    i++;
-  }
-
-  for (auto& neuron:net->outputs->neurons) {
-    for (auto& input:neuron->inputs) {
-      input->deriv = 0;
+      float weightAdjust = -1 * learningRate * input->deriv;
+      input->weight += weightAdjust;      
     }
   }
   for (auto& neuron:net->hidden->neurons) {
     for (auto& input:neuron->inputs) {
-      input->deriv = 0;
-    }
-  }
-/*
-  adjust all of the weights
-
-      float weightAdjust = -1 * learningRate * input->deriv (dEdWij);
+      float weightAdjust = -1 * learningRate * input->deriv;
       input->weight += weightAdjust;
-*/
-
+    }
+  }
 }
 
 /*

@@ -69,7 +69,7 @@ class Trainer {
     Trainer(NeuralNetwork*, float rate);
     void compare(std::vector<float> expected);
     float meanSquaredError(std::vector<float> expected);
-    void calcGradients(std::vector<float> expected);
+    void calcGradients(vector<vector<float>> inputs, vector<vector<float>> expected);
 };
 
 

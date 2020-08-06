@@ -28,15 +28,26 @@ int main(int argc, const char* argv[]) {
   cout << "Network:\n";
   net->print();
   auto trainer = new Trainer(net, 0.11);
-  vector<float> exp;
-  exp.push_back(1);
-  exp.push_back(0);
+  vector<vector<float>> exp;
+  vector<float> exp_;
+  exp_.push_back(0);
+  exp_.push_back(1);
+  exp.push_back(exp_);
+  vector<float> exp2_;
+  exp2_.push_back(0);
+  exp2_.push_back(1);
+  exp.push_back(exp_);
+
+  vector<vector<float>>inputs;
+  vector<float> inp1 = {1,1};
+  
+
   for (int i=0; i< 71500; i++) {
-    trainer->calcGradients(exp);
+    trainer->calcGradients(inputs, exp);
     net->computeOutputs();
   }
-  cout << "Difference from expected:\n";
-  trainer->compare(exp);
+  //cout << "Difference from expected:\n";
+  //trainer->mean(exp);
   
   cout << "Network:\n";
   net->print();
