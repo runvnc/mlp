@@ -29,8 +29,8 @@ int main(int argc, const char* argv[]) {
   net->print();
   auto trainer = new Trainer(net, 0.11);
   vector<float> exp;
-  exp.push_back(0);
   exp.push_back(1);
+  exp.push_back(0);
   for (int i=0; i< 71500; i++) {
     trainer->calcGradients(exp);
     net->computeOutputs();

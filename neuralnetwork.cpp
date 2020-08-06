@@ -115,6 +115,21 @@ void Trainer::calcGradients(std::vector<float> desired) {
   // for each output, starting at last layer, working backward
   float dEdY[1000], dEdX[1000];
   int j = 0;
+
+  // first reset all the weight derivative accumulators
+  for (auto& neuron:net->outputs->neurons) {
+    for (auto& input:neuron->inputs) {
+      input->deriv = 0;
+    }
+  }
+  for (auto& neuron:net->hidden->neurons) {
+    for (auto& input:neuron->inputs) {
+      input->deriv = 0;
+    }
+  }
+
+  //ss
+
   std::vector<float>& d = desired;
   for (auto& neuron:net->outputs->neurons) {
     float Yj = neuron->outputActivation;
@@ -123,8 +138,7 @@ void Trainer::calcGradients(std::vector<float> desired) {
     for (auto& input:neuron->inputs) {
       float Yi = input->fromNeuron->outputActivation;
       float dEdWij = dEdX[j] * Yi;
-      float weightAdjust = -1 * learningRate * dEdWij;
-      input->weight += weightAdjust;
+      input->deriv += dEdWij;
     }
     j++;
   }
@@ -147,11 +161,27 @@ void Trainer::calcGradients(std::vector<float> desired) {
     for (auto& input:neuron->inputs) {
       float Yi = input->fromNeuron->outputActivation;
       float dEdWij = dEdX[j] * Yi;
-      float weightAdjust = -1 * learningRate * dEdWij;
-      input->weight += weightAdjust;
+      input->deriv += dEdWij;
     }
     i++;
   }
+
+  for (auto& neuron:net->outputs->neurons) {
+    for (auto& input:neuron->inputs) {
+      input->deriv = 0;
+    }
+  }
+  for (auto& neuron:net->hidden->neurons) {
+    for (auto& input:neuron->inputs) {
+      input->deriv = 0;
+    }
+  }
+/*
+  adjust all of the weights
+
+      float weightAdjust = -1 * learningRate * input->deriv (dEdWij);
+      input->weight += weightAdjust;
+*/
 
 }
 
@@ -193,7 +223,15 @@ the derivative of the cost function at that point in the graph
 working backwards from the output neuron
 so construct the cost function for that weight by composing functions
 
+"Episodic memory" comes the closest. I’ve repeatedly rejigged existing libraries to meet what's needed for predicate-based knowledge.
 
+There aren't many papers these days that address unsupervised concept creation, much less predicates that connect them. When NNs deal with concepts, they are dictated by the trainer. This is why we have the “symbol grounding problem” - how do you ground the meaning of a word in reality?
+
+The approach I take is to first create a new network for every learning episode. Each is a small predicate, like an isolated memory. Back propagation then prunes and groups them (unsupervised) into concepts, resulting in a network of these networks connected to one another.
+
+The main innovation is to group concepts based on the agent’s motivations, rather than on data clusters. All networks that meet a particular motivation are part of a concept.
+
+Grouping concepts based on the agent’s motivations implies that truth is subjective to each person. ML folk tend to be uncomfortable with the idea that truth is subjective, rather than data-driven. But I see no other path to solve the symbol grounding problem, because the meaning of something is unique to your personal motivations.
 
 */
 
