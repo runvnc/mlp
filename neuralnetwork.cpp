@@ -3,6 +3,7 @@
 #include <iostream>
 #include <assert.h>
 #include <cmath>
+#include <stdlib.h>
 
 void Neuron::calculateActivation() {
   float sum = 0;
@@ -21,7 +22,6 @@ NeuralInput* Neuron::findInputFrom(Neuron* n) {
   }
   throw runtime_error("Can't match neural input.");
 }
-
 
 Layer::Layer(int index, int count) {
   ind = index;
@@ -42,6 +42,15 @@ void Layer::connectTo(Layer* toLayer) {
       NeuralInput* inp = new NeuralInput(fromNeuron, toNeuron, 0.5);
       toNeuron->inputs.push_back(inp);
     } 
+  }
+}
+
+void Layer::randomWeights() {
+  for (size_t i=0; i < neurons.size(); i++) {
+    Neuron* neuron = neurons[i];
+    for (size_t j=0; j<neuron->inputs.size(); j++) {
+      neuron->inputs[j]->weight = ((double) rand() / (RAND_MAX)) * 0.1;
+    }
   }
 }
 
@@ -100,18 +109,31 @@ void Trainer::compare(std::vector<float> expected) {
   }
 }
 
-float Trainer::meanSquaredError(std::vector<float> expected) {
-  float sum = 0;
-  for (size_t i=0; i<expected.size(); i++) {
-    float diff = expected[i] - network->outputs->neurons[i]->outputActivation;
-    sum += pow(diff,2);
+float Trainer::meanSquaredError(vector<vector<float>> inps, vector<vector<float>> expected_) {
+  float sum = 0, count = 0;
+  int i = 0;
+  for (auto& inp:inps) {
+    int inNeuronNum = 0;
+    for (auto& ninp:network->inputs->neurons)
+      ninp->outputActivation = inp[inNeuronNum++];
+    network->computeOutputs();
+    auto expected = expected_[i++];
+    for (size_t i=0; i<expected.size(); i++) {
+      float diff = expected[i] - network->outputs->neurons[i]->outputActivation;
+      sum += pow(diff,2);
+    }
+    count += expected.size();
   }
-  return sum/expected.size();
+  return sum/count;
 }
 
 
-void Trainer::calcGradients(vector<vector<float> inps, vector<vector<float>> desired_) {
+void Trainer::calcGradients(vector<vector<float>> inps, vector<vector<float>> desired_) {
   NeuralNetwork* net = network;
+
+  //net->hidden->randomWeights();
+  //net->outputs->randomWeights();
+
   // first reset all the weight derivative accumulators
   for (auto& neuron:net->outputs->neurons) {
     for (auto& input:neuron->inputs) {
@@ -123,9 +145,16 @@ void Trainer::calcGradients(vector<vector<float> inps, vector<vector<float>> des
       input->deriv = 0;
     }
   }
+  int in = 0;
 
   for (auto& desired:desired_) {
     float dEdY[1000], dEdX[1000];
+    int inNeuronNum = 0;
+    vector<float> exampleInputs = inps[in];
+    for (auto& ninp:net->inputs->neurons)
+      ninp->outputActivation = exampleInputs[inNeuronNum++];
+    net->computeOutputs();
+
     int j = 0;
 
     std::vector<float>& d = desired;
@@ -163,12 +192,14 @@ void Trainer::calcGradients(vector<vector<float> inps, vector<vector<float>> des
       }
       i++;
     }
+    in++;
   }
 
   for (auto& neuron:net->outputs->neurons) {
     for (auto& input:neuron->inputs) {
       float weightAdjust = -1 * learningRate * input->deriv;
       input->weight += weightAdjust;      
+      //cout << "outp adjust=" << weightAdjust << " weight=" << input->weight << "\n";
     }
   }
   for (auto& neuron:net->hidden->neurons) {

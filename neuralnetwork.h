@@ -24,7 +24,7 @@ class Neuron {
     int layer;
     int index;
 
-    float bias = 0;
+    float bias = 1.0;
 
     vector<NeuralInput*> inputs; 
 
@@ -43,6 +43,7 @@ class Layer {
     void activateAll();
     void connectTo(Layer*);
     void print();
+    void randomWeights();
 };
 
 class NeuralNetwork {

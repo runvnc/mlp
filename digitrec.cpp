@@ -2,8 +2,13 @@
 #include <stdio.h>
 #include "ANDnet.h"
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>  
+
 
 void setupMNIST() {
+
+
   int32_t TESTING_LABEL_MAGIC_NUM = 2049;
   auto testingLabels = new MNISTLabels(TESTING_LABEL_MAGIC_NUM);
   testingLabels->loadFile("digitsdata/t10k-labels-idx1-ubyte");
@@ -23,6 +28,8 @@ void setupMNIST() {
 }
 
 int main(int argc, const char* argv[]) {
+  srand (time(NULL));
+
   auto net = new ANDNetwork();
   net->computeOutputs();
   cout << "Network:\n";
@@ -34,21 +41,41 @@ int main(int argc, const char* argv[]) {
   exp_.push_back(1);
   exp.push_back(exp_);
   vector<float> exp2_;
-  exp2_.push_back(0);
   exp2_.push_back(1);
-  exp.push_back(exp_);
+  exp2_.push_back(0);
+  exp.push_back(exp2_);
+
+  vector<float> exp3_;
+  exp3_.push_back(1);
+  exp3_.push_back(0);
+  //exp.push_back(exp3_);
 
   vector<vector<float>>inputs;
-  vector<float> inp1 = {1,1};
-  
+  vector<float> inp1;
+  inp1.push_back(1);
+  inp1.push_back(1);
+  inputs.push_back(inp1);
+  vector<float> inp2;
+  inp2.push_back(0);
+  inp2.push_back(1);
+  inputs.push_back(inp2);
 
-  for (int i=0; i< 71500; i++) {
+  vector<float> inp3;
+  inp3.push_back(1);
+  inp3.push_back(0);
+  //inputs.push_back(inp3);
+
+  for (int i=0; i<500000; i++) {
     trainer->calcGradients(inputs, exp);
-    net->computeOutputs();
   }
   //cout << "Difference from expected:\n";
   //trainer->mean(exp);
-  
+  //net->assignInput(0,1);
+  //net->assignInput(1,1);
+
+  net->assignInput(0,1);
+  net->assignInput(1,1);
+  net->computeOutputs();
   cout << "Network:\n";
   net->print();
 }
