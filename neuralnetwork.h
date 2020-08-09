@@ -24,13 +24,18 @@ class Neuron {
     int layer;
     int index;
 
-    float bias = 1.0;
+    float bias = 0.0;
 
     vector<NeuralInput*> inputs; 
 
     float outputActivation;
     NeuralInput* findInputFrom(Neuron*);
     
+    void calculateActivation();
+};
+
+class BiasNeuron : Neuron {
+  public:
     void calculateActivation();
 };
 
@@ -44,6 +49,7 @@ class Layer {
     void connectTo(Layer*);
     void print();
     void randomWeights();
+    void printWeights();
 };
 
 class NeuralNetwork {
@@ -52,9 +58,11 @@ class NeuralNetwork {
     Layer* hidden;
     Layer* outputs = NULL;
 
+    void randomWeights();
     void assignInput(size_t,float);
     void connectLayers();
     void randomizeHidden();
+
     void computeOutputs();
     void print();
 };
@@ -69,7 +77,7 @@ class Trainer {
     float learningRate = 0;
     Trainer(NeuralNetwork*, float rate);
     void compare(std::vector<float> expected);
-    float meanSquaredError(std::vector<float> expected);
+    float meanSquaredError(vector<vector<float>>, vector<vector<float>>);
     void calcGradients(vector<vector<float>> inputs, vector<vector<float>> expected);
 };
 

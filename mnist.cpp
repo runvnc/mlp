@@ -3,6 +3,7 @@
 #include <exception>
 #include "textcolor.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -40,6 +41,7 @@ void MNISTImages::loadFile(string name) {
   numImages = readSwap(file);
   rows = readSwap(file);
   cols = readSwap(file);
+  cout << "rows=" << rows << " cols=" << cols << "\n";
   
   for (int i = 0; i < numImages; i++) {
     char* pixels = new char[rows*cols];

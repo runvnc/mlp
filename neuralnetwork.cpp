@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <cmath>
 #include <stdlib.h>
+#include <iomanip>
 
 void Neuron::calculateActivation() {
   float sum = 0;
@@ -49,7 +50,7 @@ void Layer::randomWeights() {
   for (size_t i=0; i < neurons.size(); i++) {
     Neuron* neuron = neurons[i];
     for (size_t j=0; j<neuron->inputs.size(); j++) {
-      neuron->inputs[j]->weight = ((double) rand() / (RAND_MAX)) * 0.1;
+      neuron->inputs[j]->weight = ((double) rand() / (RAND_MAX)) - 0.5;
     }
   }
 }
@@ -58,6 +59,18 @@ void Layer::print() {
   for (size_t i=0; i < neurons.size(); i++) {
     Neuron* n = neurons[i];
     cout << ind << " " << i << " " << n->outputActivation << "\n";
+  }
+}
+
+void Layer::printWeights() {
+  cout << setprecision(3);
+  for (size_t i=0; i < neurons.size(); i++) {
+    Neuron* n = neurons[i];
+    int j = 0;
+    for (auto& inp:n->inputs) {
+      cout << "w" << ind  << i << j << " = " << inp->weight << "\n";
+      j++;
+    }
   }
 }
 
@@ -78,6 +91,11 @@ void NeuralNetwork::connectLayers() {
 void NeuralNetwork::computeOutputs() {
   hidden->activateAll();
   outputs->activateAll();
+}
+
+void NeuralNetwork::randomWeights() {
+  hidden->randomWeights();
+  outputs->randomWeights();
 }
 
 void NeuralNetwork::print() {
@@ -111,8 +129,8 @@ void Trainer::compare(std::vector<float> expected) {
 
 float Trainer::meanSquaredError(vector<vector<float>> inps, vector<vector<float>> expected_) {
   float sum = 0, count = 0;
-  int i = 0;
   for (auto& inp:inps) {
+    int i = 0;
     int inNeuronNum = 0;
     for (auto& ninp:network->inputs->neurons)
       ninp->outputActivation = inp[inNeuronNum++];
