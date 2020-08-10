@@ -50,12 +50,14 @@ void Layer::randomWeights() {
   for (size_t i=0; i < neurons.size(); i++) {
     Neuron* neuron = neurons[i];
     for (size_t j=0; j<neuron->inputs.size(); j++) {
-      neuron->inputs[j]->weight = ((double) rand() / (RAND_MAX)) - 0.5;
+      float w = ((double) rand() / (RAND_MAX)) - 0.5;
+      neuron->inputs[j]->weight = w * 0.2;
     }
   }
 }
 
 void Layer::print() {
+  cout << setprecision(3);
   for (size_t i=0; i < neurons.size(); i++) {
     Neuron* n = neurons[i];
     cout << ind << " " << i << " " << n->outputActivation << "\n";
@@ -96,6 +98,25 @@ void NeuralNetwork::computeOutputs() {
 void NeuralNetwork::randomWeights() {
   hidden->randomWeights();
   outputs->randomWeights();
+}
+
+void NeuralNetwork::assignInputs(vector<float> in) {
+  int i=0;
+  for (auto& inp:in) assignInput(i++,inp);
+}
+
+int NeuralNetwork::classify() {
+  int which = -1, i = 0;
+  float max = 0.00;
+  for (auto& neuron:outputs->neurons) {
+    float out = neuron->outputActivation;
+    if (out >= max) {
+      which = i;
+      max = out;
+    }
+    i++;
+  }
+  return which;
 }
 
 void NeuralNetwork::print() {
@@ -215,15 +236,17 @@ void Trainer::calcGradients(vector<vector<float>> inps, vector<vector<float>> de
 
   for (auto& neuron:net->outputs->neurons) {
     for (auto& input:neuron->inputs) {
-      float weightAdjust = -1 * learningRate * input->deriv;
-      input->weight += weightAdjust;      
+      float weightAdjust = -1 * learningRate * input->changespeed * input->deriv;
+      input->weight += weightAdjust;
+      //input->changespeed += input->deriv;      
       //cout << "outp adjust=" << weightAdjust << " weight=" << input->weight << "\n";
     }
   }
   for (auto& neuron:net->hidden->neurons) {
     for (auto& input:neuron->inputs) {
-      float weightAdjust = -1 * learningRate * input->deriv;
+      float weightAdjust = -1 * learningRate * input->changespeed * input->deriv;
       input->weight += weightAdjust;
+      //input->changespeed += input->deriv;
     }
   }
 }

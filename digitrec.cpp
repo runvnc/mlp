@@ -3,7 +3,9 @@
 #include "ANDnet.h"
 #include <iostream>
 #include <stdlib.h>
-#include <time.h>  
+#include <time.h>
+#include <string>
+
 
 void setupMNIST() {
   int32_t TESTING_LABEL_MAGIC_NUM = 2049;
@@ -18,11 +20,6 @@ void setupMNIST() {
 
   printf("Loaded %d testing images.\n", testingImages->numImages);
 
-  for (int i=0; i < 5; i++) {
-    testingImages->printImage(i);
-    printf("%d\n",testingLabels->labels[i]);
-  }
-
   NeuralNetwork* net = new NeuralNetwork();
       
   net->inputs = new Layer(0,784);
@@ -31,28 +28,35 @@ void setupMNIST() {
   cout << "Connect layers \n";
   net->connectLayers();
   cout << "OK\n";
-  auto trainer = new Trainer(net, 0.21);
+  auto trainer = new Trainer(net, 0.005);
   int rows = 28;
   int cols = 28;
   vector<vector<float>> inputs,expected;
-  for (int index=0; index<130; index++) { 
+  vector<vector<float>> inputsx,expectedx;
+
+  for (int index=0; index<230; index++) { 
     vector<float> inp, exp;
     char* pixels = testingImages->images[index];
     for (int row = 0; row < rows; row++) {
-      vector<float> inp, exp;
       for (int col = 0; col < cols; col++) {
         int index = row*cols+col;
         uint8_t darkness = pixels[index];
         inp.push_back(darkness/255.0);    
       }
-      inputs.push_back(inp);
-      for (int l=0;l<10;l++) exp.push_back(0);
-      exp[testingLabels->labels[index]] = 1.0;
-      expected.push_back(exp); 
     }
+    if (index < 30) inputs.push_back(inp);
+    inputsx.push_back(inp);
+    for (int l=0;l<10;l++) exp.push_back(0);
+    int which = testingLabels->labels[index];
+    cout << "which = " << which << "\n";
+    exp[which] = 1.0;
+    if (index < 30) expected.push_back(exp); 
+    expectedx.push_back(exp);
   }
+  string d;
+  getline(cin,d);
   float lowmse = 100;
-  for (int k=0; k<10; k++) {
+  for (int k=0; k<100; k++) {
     cout << ">>> " << k << "\n";
     cout << "Randomizing weights\n";
     net->randomWeights();
@@ -69,8 +73,8 @@ void setupMNIST() {
     }
   }
 
-  for (int i=0; i<20; i++) {
-    cout << "calc gradients: " << i << "\n";
+  for (int i=0; i<1500; i++) {
+    if (i%100==0) cout << "calc gradients: " << i << "\n";
     trainer->calcGradients(inputs, expected);
   } 
 
@@ -80,14 +84,24 @@ void setupMNIST() {
   lowmse = mse;
   cout << "--------------------------------------------------\n";
   cout << "mse: " << mse << "\n";
+
+  string xx;
+  for (int t=200; t<214;t++) { 
+    testingImages->printImage(t);
+    net->assignInputs(inputsx[t]);
+    net->computeOutputs();
+    int c = net->classify();
+    //net->print();
+    cout << "Class = " << c << "\n";
+    getline(cin, xx);
+  }
 }
 
 int main(int argc, const char* argv[]) {
   srand (time(NULL));
 
   setupMNIST();
-  /*
-
+/*
   auto net = new ANDNetwork();
 
   auto trainer = new Trainer(net, 0.11);
@@ -159,7 +173,7 @@ int main(int argc, const char* argv[]) {
   net->computeOutputs();
   cout << "Network:\n";
   net->print();
-    */
+  cout << "class: " << net->classify() << "\n"; */
 }
 
 /*

@@ -10,6 +10,7 @@ class NeuralInput {
     Neuron* toNeuron;
     float weight = 0;
     float deriv = 0;
+    float changespeed = 1.0;
 
     NeuralInput(Neuron* from_, Neuron* to_, float weight_) {
       fromNeuron = from_;
@@ -60,10 +61,12 @@ class NeuralNetwork {
 
     void randomWeights();
     void assignInput(size_t,float);
+    void assignInputs(vector<float>);
     void connectLayers();
     void randomizeHidden();
 
     void computeOutputs();
+    int classify();
     void print();
 };
 
