@@ -251,54 +251,5 @@ void Trainer::calcGradients(vector<vector<float>> inps, vector<vector<float>> de
   }
 }
 
-/*
-inside of/ outside of
-relation between two objects
-describes categories of scenarios
-inside if will be obscured/hidden if perspective changes
-or will need to move in a certain way to get out
-its an abstract description of geometry
-so there needs to be some kind of partial or complete enclosure
-but this can include cups or bowls that are not entirely enclosed
-
-
-need to be able to quickly retrieve episodes by tagged concept
-need high performance (parallel?) transformations involving many
-inputs and outputs
-and a way to automatically create those composed functions
-to arrive at outputs that match inputs (modeling)
-
-would be nice if that could be plugged in to a different robot
-*/
-
-/*
-compute the total error/cost
-which is going to be the sum of the output errors
-MSE
-
-then adjustweights
-starting with the output layer
-then the hidden layer
-
-to adjust weights, we want to find out how to
-change w for each neuron to reduce the MSE
-so we need to take the derivative of the function
-that gets us that output
-so at each neuron, for each weight and each bias, calculate
-the derivative of the cost function at that point in the graph
-working backwards from the output neuron
-so construct the cost function for that weight by composing functions
-
-"Episodic memory" comes the closest. I’ve repeatedly rejigged existing libraries to meet what's needed for predicate-based knowledge.
-
-There aren't many papers these days that address unsupervised concept creation, much less predicates that connect them. When NNs deal with concepts, they are dictated by the trainer. This is why we have the “symbol grounding problem” - how do you ground the meaning of a word in reality?
-
-The approach I take is to first create a new network for every learning episode. Each is a small predicate, like an isolated memory. Back propagation then prunes and groups them (unsupervised) into concepts, resulting in a network of these networks connected to one another.
-
-The main innovation is to group concepts based on the agent’s motivations, rather than on data clusters. All networks that meet a particular motivation are part of a concept.
-
-Grouping concepts based on the agent’s motivations implies that truth is subjective to each person. ML folk tend to be uncomfortable with the idea that truth is subjective, rather than data-driven. But I see no other path to solve the symbol grounding problem, because the meaning of something is unique to your personal motivations.
-
-*/
 
 
